@@ -8,7 +8,7 @@ export default function Home() {
     <main className="wrapper container">
       <CustomerHeader />
       <div className="main-page-banner">
-        <h1>Good Food</h1>
+        <h1>Good Food</h1> 
       <div className="input-wrapper">
         <input type="text" className="select-input" placeholder="Select Place" />
         <input type="text" className="search-input" placeholder="Enter food or restaurant name" />
