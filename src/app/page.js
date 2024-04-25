@@ -1,9 +1,8 @@
 "use client";
-import Image from "next/image";
-import styles from "./page.module.css";
 import CustomerHeader from "./_components/CustomerHeader";
 import Footer from "./_components/Footer";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
 
@@ -11,6 +10,7 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [showLocation, setShowLocation] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     loadLocation();
@@ -25,10 +25,16 @@ export default function Home() {
     }
   }
 
-  const loadRestaurants = async () => {
-    let response = await fetch("http://localhost:3000/api/customer");
+  const loadRestaurants = async (params) => {
+    let url = "http://localhost:3000/api/customer"
+    if (params?.location) {
+      url = url + "?location=" + params.location;
+    } else if (params?.restaurant) {
+      url = url + "?restaurant=" + params.restaurant;
+    }
+    let response = await fetch(url);
     response = await response.json();
-    console.log("===>",response.result);
+    console.log("===>", response.result);
     if (response.success) {
       setRestaurants(response.result);
     }
@@ -37,6 +43,7 @@ export default function Home() {
   const handleListItem = (item) => {
     setSelectedLocation(item);
     setShowLocation(false);
+    loadRestaurants({ location: item });
   }
 
   return (
@@ -46,7 +53,7 @@ export default function Home() {
         <h1>Good Food</h1>
         <div className="input-wrapper">
           <input type="text"
-            onClick={() => setShowLocation(true)}
+            onClick={() => setShowLocation(!showLocation)}
             value={selectedLocation} className="select-input" placeholder="Select Place" />
           <ul className="locationList">
             {
@@ -55,7 +62,10 @@ export default function Home() {
               ))
             }
           </ul>
-          <input type="text" className="search-input" placeholder="Enter food or restaurant name" />
+          <input type="text"
+            className="search-input"
+            onChange={(event) => loadRestaurants({ restaurant: event.target.value })}
+            placeholder="Enter food or restaurant name" />
         </div>
       </div>
       <div className="restaurant-list-container">
@@ -69,7 +79,6 @@ export default function Home() {
               <div className="address-wrapper">
                 <div>{item.city},</div>
                 <div className="address"> {item.address}, Email: {item.email}</div>
-
               </div>
             </div>
           ))
