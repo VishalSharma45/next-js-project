@@ -34,7 +34,7 @@ export default function Home() {
     }
     let response = await fetch(url);
     response = await response.json();
-    console.log("===>", response.result);
+
     if (response.success) {
       setRestaurants(response.result);
     }
