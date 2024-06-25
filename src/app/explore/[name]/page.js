@@ -7,6 +7,11 @@ const Page = (props) => {
 
   const [restaurantDetails, setRestaurantDetails] = useState();
   const [foodItems, setFoodItems] = useState([]);
+  const [cartData, setCartData] = useState();
+  const [cartStorage, setCartStorage] = useState(JSON.parse(localStorage.getItem('cart')));
+  const [cartIds, setCartIds] = useState(cartStorage ? () => cartStorage.map((item) => {
+    return item._id;
+  }) : []);
   const name = props.params.name;
 
   useEffect(() => {
@@ -22,9 +27,21 @@ const Page = (props) => {
       setFoodItems(response.foodItems);
     }
   }
+
+  const addToCart = (item) => {
+    setCartData(item);
+    let localCartIds = cartIds;
+    localCartIds?.push(item._id);
+    setCartIds(localCartIds);
+  }
+
+  const removeFromCart = (id) => {
+    let newIds = cartIds.filter((item) => item != id);
+    setCartIds(newIds);
+  }
   return (
     <div>
-      <CustomerHeader />
+      <CustomerHeader cartData={cartData} removeFromCart={removeFromCart} />
       <div className="restaurant-page-banner">
         <h1>{decodeURI(name)}</h1>
       </div>
@@ -37,15 +54,18 @@ const Page = (props) => {
       <div className='food-list-wrapper'>
         {
           foodItems.length > 0 ? foodItems.map((item) => (
-            <div className='list-item'>
+            <div key={item._id} className='list-item'>
               <div>
                 <img style={{ width: 100 }} src={item.img_path} alt="" />
               </div>
               <div>
                 <div>{item.name}</div>
                 <div>{item.price}</div>
-                <div className='description'>{item.description}</div>
-                <button>Add to cart</button>
+                {
+                  cartIds?.includes(item._id)
+                    ? <button onClick={() => removeFromCart(item._id)}>Remove from cart</button>
+                    : <button onClick={() => addToCart(item)}>Add to cart</button>
+                }
               </div>
             </div>
           ))
